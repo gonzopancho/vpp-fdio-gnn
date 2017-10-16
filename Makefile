@@ -493,7 +493,7 @@ fixstyle:
 export DOXY_DIR ?= $(WS_ROOT)/doxygen
 
 define make-doxy
-	@OS_ID="$(OS_ID)" make -C $(DOXY_DIR) $@
+	@OS_ID="$(OS_ID)" gmake -C $(DOXY_DIR) $@
 endef
 
 .PHONY: bootstrap-doxygen doxygen wipe-doxygen
