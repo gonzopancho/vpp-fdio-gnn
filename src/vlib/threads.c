@@ -266,6 +266,7 @@ os_get_nthreads (void)
 void
 vlib_set_thread_name (char *name)
 {
+#ifndef __FreeBSD__
   int pthread_setname_np (pthread_t __target_thread, const char *__name);
   int rv;
   pthread_t thread = pthread_self ();
@@ -276,6 +277,7 @@ vlib_set_thread_name (char *name)
       if (rv)
 	clib_warning ("pthread_setname_np returned %d", rv);
     }
+#endif /* __FreeBSD__ */
 }
 
 static int
@@ -374,10 +376,12 @@ vlib_thread_init (vlib_main_t * vm)
     }
   else
     {
+#ifndef __FreeBSD__
       cpu_set_t cpuset;
       CPU_ZERO (&cpuset);
       CPU_SET (tm->main_lcore, &cpuset);
       pthread_setaffinity_np (pthread_self (), sizeof (cpu_set_t), &cpuset);
+#endif /* __FreeBSD__ */
     }
 
   /* as many threads as stacks... */
@@ -390,7 +394,11 @@ vlib_thread_init (vlib_main_t * vm)
   w->thread_mheap = clib_mem_get_heap ();
   w->thread_stack = vlib_thread_stacks[0];
   w->lcore_id = tm->main_lcore;
+#ifndef __FreeBSD__
   w->lwp = syscall (SYS_gettid);
+#else
+  w->lwp = getpid();
+#endif /* __FreeBSD__ */
   w->thread_id = pthread_self ();
   tm->n_vlib_mains = 1;
 
@@ -672,7 +680,11 @@ vlib_worker_thread_bootstrap_fn (void *arg)
   void *rv;
   vlib_worker_thread_t *w = arg;
 
+#ifndef __FreeBSD__
   w->lwp = syscall (SYS_gettid);
+#else
+  w->lwp = getpid();
+#endif /* __FreeBSD__ */
   w->thread_id = pthread_self ();
 
   __os_thread_index = w - vlib_worker_threads;
@@ -700,12 +712,14 @@ vlib_launch_thread_int (void *fp, vlib_worker_thread_t * w, unsigned lcore_id)
       CPU_ZERO (&cpuset);
       CPU_SET (lcore_id, &cpuset);
 
+#ifndef __FreeBSD__
       if (pthread_create (&worker, NULL /* attr */ , fp_arg, (void *) w))
 	return clib_error_return_unix (0, "pthread_create");
 
       if (pthread_setaffinity_np (worker, sizeof (cpu_set_t), &cpuset))
 	return clib_error_return_unix (0, "pthread_setaffinity_np");
 
+#endif /* __FreeBSD __ */
       return 0;
     }
 }

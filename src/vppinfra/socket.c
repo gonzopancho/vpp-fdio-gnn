@@ -54,6 +54,7 @@
 #include <vppinfra/format.h>
 #include <vppinfra/error.h>
 
+
 void
 clib_socket_tx_add_formatted (clib_socket_t * s, char *fmt, ...)
 {
@@ -309,6 +310,8 @@ static clib_error_t *
 default_socket_recvmsg (clib_socket_t * s, void *msg, int msglen,
 			int fds[], int num_fds)
 {
+#ifndef __FreeBSD__
+
   char ctl[CMSG_SPACE (sizeof (int) * num_fds) +
 	   CMSG_SPACE (sizeof (struct ucred))];
   struct msghdr mh = { 0 };
@@ -354,6 +357,8 @@ default_socket_recvmsg (clib_socket_t * s, void *msg, int msglen,
 	}
       cmsg = CMSG_NXTHDR (&mh, cmsg);
     }
+#endif /* __FreeBSD__ */
+
   return 0;
 }
 
@@ -438,6 +443,7 @@ clib_socket_init (clib_socket_t * s)
 
       if (addr.sa.sa_family == PF_LOCAL && s->flags & CLIB_SOCKET_F_PASSCRED)
 	{
+#ifndef __FreeBSD__
 	  int x = 1;
 	  if (setsockopt (s->fd, SOL_SOCKET, SO_PASSCRED, &x, sizeof (x)) < 0)
 	    {
@@ -446,7 +452,9 @@ clib_socket_init (clib_socket_t * s)
 					      s->config);
 	      goto done;
 	    }
+#endif /* __FreeBSD__ */
 	}
+
 
       if (need_bind && bind (s->fd, &addr.sa, addr_len) < 0)
 	{

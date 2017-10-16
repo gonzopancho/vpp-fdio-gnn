@@ -39,7 +39,7 @@
 ######################################################################
 
 # Scripts require non-POSIX parts of bash
-SHELL := /bin/bash
+SHELL := /usr/local/bin/bash
 
 # Where this makefile lives
 MU_BUILD_ROOT_DIR = $(shell pwd)

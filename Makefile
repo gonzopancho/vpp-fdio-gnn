@@ -51,7 +51,10 @@ GDB_ARGS= -ex "handle SIGUSR1 noprint nostop"
 # OS Detection
 #
 # We allow Darwin (MacOS) for docs generation; VPP build will still fail.
-ifneq ($(shell uname),Darwin)
+ifeq ($(shell uname),FreeBSD)
+OS_ID        = $(shell uname)
+OS_VERSION_ID= $(shell uname -r | awk -F- '{ print $1 }')
+else ifneq ($(shell uname),Darwin)
 OS_ID        = $(shell grep '^ID=' /etc/os-release | cut -f2- -d= | sed -e 's/\"//g')
 OS_VERSION_ID= $(shell grep '^VERSION_ID=' /etc/os-release | cut -f2- -d= | sed -e 's/\"//g')
 endif
@@ -259,7 +262,7 @@ else
 	@ln -s /usr/bin/ccache $(BR)/tools/ccache-bin/gcc
 	@ln -s /usr/bin/ccache $(BR)/tools/ccache-bin/g++
 endif
-	@make -C $(BR) V=$(V) is_build_tool=yes tools-install
+	@gmake -C $(BR) V=$(V) is_build_tool=yes tools-install
 	@touch $@
 
 bootstrap: $(BR)/.bootstrap.ok
@@ -288,7 +291,7 @@ else
 endif
 
 define make
-	@make -C $(BR) PLATFORM=$(PLATFORM) TAG=$(1) $(2)
+	@gmake -C $(BR) PLATFORM=$(PLATFORM) TAG=$(1) $(2)
 endef
 
 $(BR)/scripts/.version:

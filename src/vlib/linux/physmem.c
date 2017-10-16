@@ -237,6 +237,10 @@ unix_physmem_init (vlib_main_t * vm)
   return error;
 }
 
+#ifndef __FreeBSD__
+
+#endif /* __FreeBSD__ */
+
 static clib_error_t *
 show_physmem (vlib_main_t * vm,
 	      unformat_input_t * input, vlib_cli_command_t * cmd)

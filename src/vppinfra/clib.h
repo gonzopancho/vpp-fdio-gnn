@@ -117,6 +117,7 @@
   decl
 
 /* Use __builtin_clz if available. */
+#ifndef __FreeBSD__
 #ifdef __GNUC__
 #include <features.h>
 #if __GNUC_PREREQ(3, 4)
@@ -129,6 +130,11 @@
 #endif
 #endif
 #endif
+#else /* __FreeBSD Case */
+#define count_leading_zeros(count,x) count = __builtin_clzl (x)
+#define count_trailing_zeros(count,x) count = __builtin_ctzl (x)
+#endif /* __FreeBSD__ */
+
 
 #ifndef count_leading_zeros
 

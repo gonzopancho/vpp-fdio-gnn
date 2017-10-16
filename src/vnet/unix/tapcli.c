@@ -29,8 +29,12 @@
 #include <sys/uio.h>		/* for iovec */
 #include <netinet/in.h>
 
+#ifndef __FreeBSD__
 #include <linux/if_arp.h>
 #include <linux/if_tun.h>
+#else
+#include <net/if.h>
+#endif /* __FreeBSD__ */
 
 #include <vlib/vlib.h>
 #include <vlib/unix/unix.h>
@@ -864,7 +868,7 @@ int vnet_tap_connect (vlib_main_t * vm, vnet_tap_connect_args_t *ap)
 
     /* Bind the provisioning socket to the interface. */
     memset(&sll, 0, sizeof(sll));
-    sll.sll_family   = AF_PACKET;
+    sll.sll_family   = AF_LINK;
     sll.sll_ifindex  = ifr.ifr_ifindex;
     sll.sll_protocol = htons(ETH_P_ALL);
 

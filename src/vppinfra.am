@@ -292,11 +292,9 @@ CLIB_CORE = \
 libvppinfra_la_SOURCES =			\
   $(CLIB_CORE)					\
   vppinfra/elf_clib.c				\
-  vppinfra/linux/mem.c				\
-  vppinfra/linux/sysfs.c			\
   vppinfra/socket.c				\
   vppinfra/timer.c				\
-  vppinfra/unix-formats.c			\
+  vppinfra/bsd-formats.c			\
   vppinfra/unix-misc.c
 
 bin_PROGRAMS = elftool
